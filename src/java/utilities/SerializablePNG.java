@@ -5,22 +5,17 @@
 package utilities;
 
 import java.io.Serializable;
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+
 
 /**
  * @author Kate Nezdoly
  */
-@Embeddable
-public class SerializablePNG implements Serializable {
-
-@Column(name="WIDTH")
+//@Entity
+public class SerializablePNG implements Serializable{
+    
 private int width;
-@Column(name="HEIGHT")
 private int height;
-@Column(name="IMAGETYPE")
 private int imageType;
-@Column(name="PIXELS")
 private int[] pixels;
 
     public SerializablePNG() {

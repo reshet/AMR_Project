@@ -5,12 +5,14 @@
 package utilities;
 
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * To change this template, choose Tools | Templates and open the template in
+ * the editor.
  */
+import entity.Book;
 import java.awt.image.*;
 import java.io.*;
 import java.util.*;
+import javax.persistence.EntityManager;
 import org.icepdf.core.exceptions.*;
 import org.icepdf.core.pobjects.Document;
 import org.icepdf.core.pobjects.Page;
@@ -22,7 +24,7 @@ import org.icepdf.core.util.GraphicsRenderingHints;
  */
 public class SplitIntoImages {
 
-    public List<SerializablePNG> split(String filepath) {
+    public void split(Book book, String filepath) {
         Document document = new Document();
         try {
             document.setFile(filepath);
@@ -39,17 +41,20 @@ public class SplitIntoImages {
         float scale = 1f;
         float rotation = 0f;
 
-        final List<SerializablePNG> pages = new ArrayList();
+        //final List<SerializablePNG> pages = new ArrayList();
         for (int i = 0; i < document.getNumberOfPages(); i++) {
             BufferedImage image = (BufferedImage) document.getPageImage(
                     i, GraphicsRenderingHints.PRINT, Page.BOUNDARY_CROPBOX, rotation, scale);
-            
-            pages.add(getSerializablePNG(image));
+
+            //pages.add(getSerializablePNG(image));
+            SerializablePNG png = getSerializablePNG(image);
+            //entity.Page page = new entity.Page(png.getPixels(), book, null);
+            //em.persist(page);
             image.flush();
         }
-        File file = new File(filepath);
+        // File file = new File(filepath);
         document.dispose();
-        return Collections.unmodifiableList(pages);
+        // return Collections.unmodifiableList(pages);
 
     }
 

@@ -38,12 +38,12 @@ public class downloadBinary extends HttpServlet {
         //response.setContentType("text/html;charset=UTF-8");
         //PrintWriter out = response.getWriter();
         try {
-            String id = request.getParameter("attachment_id");
-            File                f        = new File("/home/reshet/Downloads/db2_2_2010.pdf");
+            String id = request.getParameter("id");
+            File                f        = new File("/home/reshet/Downloads/34333/HPL.pdf");
             int                 length   = 0;
             //ServletOutputStream op       = response.getOutputStream();
             ServletContext      context  = getServletConfig().getServletContext();
-            String              mimetype = context.getMimeType("/home/reshet/Downloads/db2_2_2010.pdf");
+            String              mimetype = context.getMimeType("/home/reshet/Downloads/34333/HPL.pdf");
             //
             //  Set the response and go!
             //

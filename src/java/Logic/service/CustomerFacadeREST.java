@@ -4,7 +4,10 @@
  */
 package Logic.service;
 
+import dao.DataAccessObject;
+import entity.Book;
 import entity.Customer;
+import entity.Page;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -29,9 +32,12 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import parser.MultimediaExtractor;
+import utilities.SerializablePNG;
+import utilities.SplitIntoImages;
 
 /**
  *
@@ -100,7 +106,9 @@ public class CustomerFacadeREST extends AbstractFacade<Customer> {
     @Path("login")
     @Produces("text/plain")
     public String doLogin(@PathParam("username") String username,@PathParam("password") String password) {
-        return approveUser(username,password);
+        //.return approveUser(username,password);
+        parseBook();
+        return "approved";
     }
     @java.lang.Override
     protected EntityManager getEntityManager() {
@@ -132,7 +140,8 @@ public class CustomerFacadeREST extends AbstractFacade<Customer> {
              }
              wr.close();
              rd.close();
-             processAccountResources(total_resp);
+             
+             //processAccountResources(total_resp);
          return "Approved: "+total_resp;
         } catch (MalformedURLException ex) {
             Logger.getLogger(CustomerFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
@@ -151,6 +160,7 @@ public class CustomerFacadeREST extends AbstractFacade<Customer> {
             {
                 JSONObject obj = (JSONObject) arr.get(i);
                 String prodName = obj.getString("PRODUCTS_NAME");
+                String s = StringEscapeUtils.unescapeJava(prodName);
                 //obj.
             }
             //obj.
@@ -162,11 +172,34 @@ public class CustomerFacadeREST extends AbstractFacade<Customer> {
     private void parseBook()
     {
         try {
-            MultimediaExtractor extractor = new MultimediaExtractor();
-            extractor.extractAttachments("/home/reshet/Downloads/db2_2_2010.pdf");
-        } catch (IOException ex) {
-            Logger.getLogger(CustomerFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
+            Book book = new Book("Opacha",null,null);
+            //book.setId(3);
+            //em.persist(book);
+            //DataAccessObject dao = new DataAccessObject();
+            //dao.createBook(book);
+
+
+            SplitIntoImages splitter = new SplitIntoImages();
+            //splitter.split(em,book,"/home/reshet/Downloads/34333/server.pdf");
+//            for(int i = 0; i < pages.size(); i++){
+//                Page page = new Page(pages.get(i),book,null);
+//                //page.setId(i+1);
+//                em.persist(page);
+//            }
+            em.persist(book);
+            //dao.close();    
+            //parseBookMultimedia();
+        }
+        catch(Exception ex)
+        {
+            int b = 2;
         }
 
+    }
+    private void parseBookMultimedia()
+    {
+            MultimediaExtractor extractor = new MultimediaExtractor();
+            String sss = "/home/reshet/Downloads/34333/db2_2_2010.pdf";
+            extractor.extractAttachments(sss);
     }
 }

@@ -9,7 +9,7 @@
     <properties>
       <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(SchemaAction=&apos;refresh&apos;)"/>
       <property name="hibernate.cache.provider_class" value="org.hibernate.cache.NoCacheProvider"/>
-      <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/amr"/>
+      <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/APP"/>
       <property name="javax.persistence.jdbc.password" value="271828183"/>
       <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/>
       <property name="javax.persistence.jdbc.user" value="root"/>

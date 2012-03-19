@@ -29,6 +29,7 @@ public class Page implements Serializable {
     @Basic(optional = false)
     @Column(name = "ID")
     private Integer id;
+    
     @Embedded
     @Column(name = "CONTENT")
     private SerializablePNG content;
