@@ -48,7 +48,7 @@ public class SplitIntoImages {
 
             //pages.add(getSerializablePNG(image));
             SerializablePNG png = getSerializablePNG(image);
-            //entity.Page page = new entity.Page(png.getPixels(), book, null);
+            entity.Page page = new entity.Page(png, book, null);
             //em.persist(page);
             image.flush();
         }
