@@ -110,20 +110,33 @@ public class CustomerFacadeREST extends AbstractFacade<Customer> {
     
     @GET
     @Path("login")
-    @Produces("text/plain")
-    public String doLogin(@PathParam("username") String username,@PathParam("password") String password) {
+    @Produces({"application/xml", "application/json"})
+    public Customer doLogin(@PathParam("username") String username,@PathParam("password") String password) {
         username = "kostya.personal@gmail.com";
         password = "kassiopeya";
-        approveUser(username,password);
+        Customer c = approveUser(username,password);
         //parseBookMultimedia();
-        return "approved";
+        return c;
     }
+    
+    
+    
+    @GET
+    @Path("booklist")
+    @Produces({"application/json"})
+    public List<Book> getBooksList(@PathParam("username") String username,@PathParam("password") String password) {
+        username = "kostya.personal@gmail.com";
+        password = "kassiopeya";
+        Customer c = approveUser(username,password);
+        return (List<Book>) c.getBookCollection();
+    }
+    
     @java.lang.Override
     protected EntityManager getEntityManager() {
         return em;
     }
     
-    private String approveUser(String username,String password) 
+    private Customer approveUser(String username,String password) 
     {
         try {
             String data = URLEncoder.encode("login", "UTF-8") + "=" + URLEncoder.encode(username, "UTF-8");
@@ -149,9 +162,15 @@ public class CustomerFacadeREST extends AbstractFacade<Customer> {
              wr.close();
              rd.close();
              
+             
+              Customer c;
+              c = Customer.getCustomer(username, password, em);
+              if (c == null)c = new Customer(username, password);
+                
+                
              testUser(username, password);
              //processAccountResources(total_resp);
-         return "Approved: "+total_resp;
+         return c;
         } catch (MalformedURLException ex) {
             Logger.getLogger(CustomerFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
         } catch (UnsupportedEncodingException ex) {
@@ -159,7 +178,7 @@ public class CustomerFacadeREST extends AbstractFacade<Customer> {
         } catch (IOException ex) {
             Logger.getLogger(CustomerFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return "Disapproved";
+        return null;
     }
     private void processAccountResources(String respJSON)
     {
@@ -223,17 +242,18 @@ public class CustomerFacadeREST extends AbstractFacade<Customer> {
         if(books == null || books.isEmpty())
         {
             books = new ArrayList<Book>();
-            books.add(doParsePDF("/home/reshet/Downloads/34333/db2_2_2010.pdf"));
-            books.add(doParsePDF("/home/reshet/Downloads/34333/HPL.pdf"));
-            books.add(doParsePDF("/home/reshet/Downloads/34333/server.pdf"));
+            books.add(doParsePDF(c,"/home/reshet/Downloads/34333/db2_2_2010.pdf"));
+            books.add(doParsePDF(c,"/home/reshet/Downloads/34333/HPL.pdf"));
+            books.add(doParsePDF(c,"/home/reshet/Downloads/34333/server.pdf"));
             c.setBookCollection(books);
         }
-      
+       em.persist(c);
     }
     
-    private Book doParsePDF(String path)
+    private Book doParsePDF(Customer c,String path)
     {
-       Book book = new Book(path,null,null);
+       ArrayList<Page> pages = new ArrayList<Page>();
+       Book book = new Book(path,c,pages);
                try {
            // PATH = src;
           PdfReader reader = new PdfReader(path);
@@ -251,6 +271,8 @@ public class CustomerFacadeREST extends AbstractFacade<Customer> {
            {
                ArrayList<Attachment> attachments = new ArrayList<Attachment>();
                Page p = new Page(null, book, attachments);
+               em.persist(p);
+               pages.add(p);
                array = reader.getPageN(i).getAsArray(PdfName.ANNOTS);
                if (array == null) {
                    continue;
@@ -316,11 +338,15 @@ public class CustomerFacadeREST extends AbstractFacade<Customer> {
                        }
                    }
                }
+               p.setAttachmentCollection(attachments);
                em.persist(p);
+               pages.remove(i-1);
+               pages.add(p);
            }
         } catch (IOException ex) {
             Logger.getLogger(MultimediaExtractor.class.getName()).log(Level.SEVERE, null, ex);
         }
+       book.setPageCollection(pages);
        em.persist(book);
        return book;
     }

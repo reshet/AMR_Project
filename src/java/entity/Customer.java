@@ -39,7 +39,7 @@ public class Customer implements Serializable {
     private String login;
     @Column(name = "PASSWORD")
     private String password;
-    @ManyToMany(mappedBy = "customerCollection")
+    @OneToMany(mappedBy="idCustomer",cascade= CascadeType.PERSIST)
     private Collection<Book> bookCollection;
 
     public Customer() {
@@ -99,7 +99,7 @@ public class Customer implements Serializable {
     }
     public static Customer getCustomer(String uname,String pswd,EntityManager em)
     {
-         TypedQuery<Customer> q = em.createNamedQuery("Customer.findByAll",Customer.class);
+         TypedQuery<Customer> q = em.createQuery("SELECT c FROM Customer c WHERE c.password = :password AND c.login = :login",Customer.class);
          q.setParameter("password", pswd);
          q.setParameter("login", uname);
         List<Customer> l = q.getResultList();

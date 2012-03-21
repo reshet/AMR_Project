@@ -33,10 +33,12 @@ public class Page implements Serializable {
     @Embedded
     @Column(name = "CONTENT")
     private SerializablePNG content;
+    
     @JoinColumn(name = "ID_BOOK", referencedColumnName = "ID")
     @ManyToOne
+   // @XmlInverseReference(mappedBy="addresses")
     private Book idBook;
-    @OneToMany(mappedBy = "idPage")
+    @OneToMany(mappedBy = "idPage", cascade= CascadeType.PERSIST)
     
     private Collection<Attachment> attachmentCollection;
 
@@ -64,11 +66,11 @@ public class Page implements Serializable {
     public void setContent(SerializablePNG content) {
         this.content = content;
     }
-
+    @XmlTransient
     public Book getIdBook() {
         return idBook;
     }
-
+    @XmlTransient
     public void setIdBook(Book idBook) {
         this.idBook = idBook;
     }

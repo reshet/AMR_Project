@@ -6,6 +6,7 @@ package entity;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.List;
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
@@ -31,22 +32,21 @@ public class Book implements Serializable {
     private Integer id;
     @Column(name = "NAME")
     private String name;
-    @JoinTable(name = "CUSTOMER_BOOK", joinColumns = {
-        @JoinColumn(name = "ID_BOOK", referencedColumnName = "ID")}, inverseJoinColumns = {
-        @JoinColumn(name = "ID_CUSTOMER", referencedColumnName = "ID")})
-    @ManyToMany
-    private Collection<Customer> customerCollection;
-    @OneToMany(mappedBy = "idBook")
+    @OneToMany(mappedBy = "idBook", cascade= CascadeType.PERSIST)
     @OrderColumn
-    private Collection<Page> pageCollection;
-
+    private List<Page> pageCollection;
+    
+    @JoinColumn(name = "ID_CUSTOMER", referencedColumnName = "ID")
+    @ManyToOne
+    private Customer idCustomer;
+    
     public Book() {
     }
 
-    public Book(String name, Collection<Customer> customerCollection, Collection<Page> pageCollection) {
+    public Book(String name,Customer idCust, List<Page> pageCollection) {
         this.name = name;
-        this.customerCollection = customerCollection;
         this.pageCollection = pageCollection;
+        this.idCustomer = idCust;
     }
 
     public Integer getId() {
@@ -66,20 +66,11 @@ public class Book implements Serializable {
     }
 
     @XmlTransient
-    public Collection<Customer> getCustomerCollection() {
-        return customerCollection;
-    }
-
-    public void setCustomerCollection(Collection<Customer> customerCollection) {
-        this.customerCollection = customerCollection;
-    }
-
-    @XmlTransient
     public Collection<Page> getPageCollection() {
         return pageCollection;
     }
 
-    public void setPageCollection(Collection<Page> pageCollection) {
+    public void setPageCollection(List<Page> pageCollection) {
         this.pageCollection = pageCollection;
     }
 
@@ -106,5 +97,19 @@ public class Book implements Serializable {
     @Override
     public String toString() {
         return "entity.Book[ id=" + id + " ]";
+    }
+
+    /**
+     * @return the idCustomer
+     */
+    public Customer getIdCustomer() {
+        return idCustomer;
+    }
+
+    /**
+     * @param idCustomer the idCustomer to set
+     */
+    public void setIdCustomer(Customer idCustomer) {
+        this.idCustomer = idCustomer;
     }
 }
