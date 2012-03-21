@@ -4,9 +4,25 @@
         <servlet-name>downloadBinary</servlet-name>
         <servlet-class>Logic.service.downloadBinary</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>downloadAttachment</servlet-name>
+        <servlet-class>Logic.service.downloadAttachment</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>FileServlet</servlet-name>
+        <servlet-class>Logic.service.FileServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>downloadBinary</servlet-name>
         <url-pattern>/downloadBinary</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>downloadAttachment</servlet-name>
+        <url-pattern>/downloadAttachment</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>FileServlet</servlet-name>
+        <url-pattern>/FileServlet</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

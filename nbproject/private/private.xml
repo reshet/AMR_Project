@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/1"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/1">
+        <file>file:/home/reshet/NetBeansProjects/AMR_Facade/src/java/parser/MultimediaExtractor.java</file>
+        <file>file:/home/reshet/NetBeansProjects/AMR_Facade/src/java/Logic/service/CustomerFacadeREST.java</file>
+        <file>file:/home/reshet/NetBeansProjects/AMR_Facade/src/java/entity/Page.java</file>
+        <file>file:/home/reshet/NetBeansProjects/AMR_Facade/src/java/utilities/SplitIntoImages.java</file>
+        <file>file:/home/reshet/NetBeansProjects/AMR_Facade/src/java/utilities/SerializablePNG.java</file>
+        <file>file:/home/reshet/NetBeansProjects/AMR_Facade/src/java/utilities/Content.java</file>
+        <file>file:/home/reshet/NetBeansProjects/AMR_Facade/src/java/tests/RetrievePagesFromDB.java</file>
+        <file>file:/home/reshet/NetBeansProjects/AMR_Facade/src/java/tests/SavePagesToDBTest.java</file>
+        <file>file:/home/reshet/NetBeansProjects/AMR_Facade/src/java/entity/Book.java</file>
+        <file>file:/home/reshet/NetBeansProjects/AMR_Facade/src/java/dao/DataAccessObject.java</file>
+        <file>file:/home/reshet/NetBeansProjects/AMR_Facade/src/java/META-INF/persistence.xml</file>
+        <file>file:/home/reshet/NetBeansProjects/AMR_Facade/src/conf/persistence.xml</file>
+        <file>file:/home/reshet/NetBeansProjects/AMR_Facade/web/WEB-INF/web.xml</file>
+        <file>file:/home/reshet/NetBeansProjects/AMR_Facade/setup/glassfish-resources.xml</file>
+        <file>file:/home/reshet/NetBeansProjects/AMR_Facade/src/java/Logic/service/PageFacadeREST.java</file>
+        <file>file:/home/reshet/NetBeansProjects/AMR_Facade/src/java/Logic/service/downloadBinary.java</file>
+        <file>file:/home/reshet/NetBeansProjects/AMR_Facade/src/java/Logic/service/BookFacadeREST.java</file>
+        <file>file:/home/reshet/NetBeansProjects/AMR_Facade/src/java/Logic/PageFacade.java</file>
+        <file>file:/home/reshet/NetBeansProjects/AMR_Facade/src/java/Logic/PageFacadeLocal.java</file>
+        <file>file:/home/reshet/NetBeansProjects/AMR_Facade/src/java/entity/Customer.java</file>
+        <file>file:/home/reshet/NetBeansProjects/AMR_Facade/src/java/entity/Attachment.java</file>
+        <file>file:/home/reshet/NetBeansProjects/AMR_Facade/src/java/parser/SplitIntoImages.java</file>
+    </open-files>
+</project-private>
