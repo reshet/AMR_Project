@@ -7,12 +7,14 @@ import javax.persistence.metamodel.ListAttribute;
 import javax.persistence.metamodel.SingularAttribute;
 import javax.persistence.metamodel.StaticMetamodel;
 
-@Generated(value="EclipseLink-2.3.0.v20110604-r9504", date="2012-03-22T01:49:54")
+@Generated(value="EclipseLink-2.3.0.v20110604-r9504", date="2012-03-24T17:05:32")
 @StaticMetamodel(Book.class)
 public class Book_ { 
 
     public static volatile SingularAttribute<Book, Integer> id;
     public static volatile SingularAttribute<Book, Customer> idCustomer;
+    public static volatile SingularAttribute<Book, byte[]> glance;
+    public static volatile SingularAttribute<Book, byte[]> pdf;
     public static volatile SingularAttribute<Book, String> name;
     public static volatile ListAttribute<Book, Page> pageCollection;
 

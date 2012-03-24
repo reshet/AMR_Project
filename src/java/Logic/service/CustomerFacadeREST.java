@@ -6,6 +6,9 @@ package Logic.service;
 
 import com.itextpdf.text.pdf.*;
 import dao.DataAccessObject;
+import dtos.AttachmentDTO;
+import dtos.BookDTO;
+import dtos.PageDTO;
 import entity.Attachment;
 import entity.Book;
 import entity.Customer;
@@ -16,10 +19,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileChannel.MapMode;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.Stateless;
@@ -124,11 +128,32 @@ public class CustomerFacadeREST extends AbstractFacade<Customer> {
     @GET
     @Path("booklist")
     @Produces({"application/json"})
-    public List<Book> getBooksList(@PathParam("username") String username,@PathParam("password") String password) {
+    public List<BookDTO> getBooksList(@PathParam("username") String username,@PathParam("password") String password) {
         username = "kostya.personal@gmail.com";
         password = "kassiopeya";
         Customer c = approveUser(username,password);
-        return (List<Book>) c.getBookCollection();
+        List<Book> books = (List<Book>) c.getBookCollection();
+        List<BookDTO> bdtos = new ArrayList<BookDTO>();
+        for(Book b:books)
+        {
+            List<PageDTO> pgs = new ArrayList<PageDTO>();
+            Collection<Page> ps = b.getPageCollection();
+            for(Page p: ps)
+            {
+                List<AttachmentDTO> ats = new ArrayList<AttachmentDTO>();
+                Collection<Attachment> as = p.getAttachmentCollection();
+                for(Attachment a: as)
+                {
+                    ats.add(new AttachmentDTO(a.getId(), a.getName()));
+                }
+                PageDTO pdto = new PageDTO(p.getId(), ats);
+                pgs.add(pdto);
+            }
+            BookDTO dt = new BookDTO(b.getId(),b.getName(), pgs);
+            bdtos.add(dt);
+        }
+        
+        return bdtos;
     }
     
     @java.lang.Override
@@ -249,11 +274,57 @@ public class CustomerFacadeREST extends AbstractFacade<Customer> {
         }
        em.persist(c);
     }
-    
+    private byte[] getCover()
+    {
+        try {
+            BufferedImage img = ImageIO.read(new File("/home/reshet/Downloads/34333/cover.jpg"));
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(img,"JPG" , baos);
+            byte[] bytesOut = baos.toByteArray();
+            return bytesOut;
+        } catch (IOException ex) {
+            Logger.getLogger(CustomerFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+    private byte[] getPdfBytes(String path)
+    {
+            File f = new File(path);
+            FileInputStream fin = null;
+            FileChannel ch = null;
+            try {
+                fin = new FileInputStream(f);
+                ch = fin.getChannel();
+                int size = (int) ch.size();
+                MappedByteBuffer buf = ch.map(MapMode.READ_ONLY, 0, size);
+                byte[] bytes = new byte[size];
+                buf.get(bytes);
+                return bytes;
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } finally {
+                try {
+                    if (fin != null) {
+                        fin.close();
+                    }
+                    if (ch != null) {
+                        ch.close();
+                    }
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+            return null;
+    }
     private Book doParsePDF(Customer c,String path)
     {
        ArrayList<Page> pages = new ArrayList<Page>();
        Book book = new Book(path,c,pages);
+       book.setGlance(getCover());
+       book.setPdf(getPdfBytes(path));
+       
                try {
            // PATH = src;
           PdfReader reader = new PdfReader(path);

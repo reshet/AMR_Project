@@ -4,11 +4,8 @@
  */
 package Logic.service;
 
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
+import entity.Book;
+import java.io.*;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.servlet.ServletContext;
@@ -39,23 +36,43 @@ public class downloadBinary extends HttpServlet {
         //PrintWriter out = response.getWriter();
         try {
             String id = request.getParameter("id");
-            File                f        = new File("/home/reshet/Downloads/34333/HPL.pdf");
+            String type = request.getParameter("type");
+            
+            //File                f        = new File("/home/reshet/Downloads/34333/HPL.pdf");
             int                 length   = 0;
+            byte [] binary = null;
+            if("pdf".equals(type))
+            {
+                Book b = em.find(Book.class, Integer.parseInt(id));
+                binary = b.getPdf();
+            }
+            if("cover".equals(type))
+            {
+                Book b = em.find(Book.class, Integer.parseInt(id));
+                binary = b.getGlance();
+            }
+            
             //ServletOutputStream op       = response.getOutputStream();
             ServletContext      context  = getServletConfig().getServletContext();
-            String              mimetype = context.getMimeType("/home/reshet/Downloads/34333/HPL.pdf");
+            
+            
+            //String              mimetype = context.getMimeType("/home/reshet/Downloads/34333/HPL.pdf");
             //
             //  Set the response and go!
             //
             //
-            response.setContentType( (mimetype != null) ? mimetype : "application/octet-stream" );
-            response.setContentLength( (int)f.length() );
+            response.setContentType("application/octet-stream");
+            //response.setContentLength( (int)f.length() );
             response.setHeader( "Content-Disposition", "attachment; filename=\"" + "original_filename" + "\"" );
             //
             //  Stream to the requester.
             //
             byte[] bbuf = new byte[4048];
-            DataInputStream in = new DataInputStream(new FileInputStream(f));
+           
+            
+            
+            //DataInputStream in = new DataInputStream(new FileInputStream(f));
+            DataInputStream in = new DataInputStream(new ByteArrayInputStream(binary));
             ServletOutputStream op       = response.getOutputStream();
             while ((in != null) && ((length = in.read(bbuf)) != -1))
             {

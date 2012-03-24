@@ -36,6 +36,11 @@ public class Book implements Serializable {
     @OrderColumn
     private List<Page> pageCollection;
     
+    
+    private byte [] glance;
+    private byte [] pdf;
+    
+    
     @JoinColumn(name = "ID_CUSTOMER", referencedColumnName = "ID")
     @ManyToOne
     private Customer idCustomer;
@@ -111,5 +116,33 @@ public class Book implements Serializable {
      */
     public void setIdCustomer(Customer idCustomer) {
         this.idCustomer = idCustomer;
+    }
+
+    /**
+     * @return the glance
+     */
+    public byte[] getGlance() {
+        return glance;
+    }
+
+    /**
+     * @param glance the glance to set
+     */
+    public void setGlance(byte[] glance) {
+        this.glance = glance;
+    }
+
+    /**
+     * @return the pdf
+     */
+    public byte[] getPdf() {
+        return pdf;
+    }
+
+    /**
+     * @param pdf the pdf to set
+     */
+    public void setPdf(byte[] pdf) {
+        this.pdf = pdf;
     }
 }

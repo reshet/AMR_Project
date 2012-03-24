@@ -53,7 +53,7 @@ public class Attachment implements Serializable {
         this.id = id;
     }
 
-    public Serializable getContent() {
+    public byte [] getContent() {
         return content;
     }
 
