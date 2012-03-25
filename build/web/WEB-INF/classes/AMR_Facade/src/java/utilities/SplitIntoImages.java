@@ -43,6 +43,9 @@ public class SplitIntoImages {
             pages.add(getSerializablePNG(image));
              File file = new File("/home/reshet/Downloads/imgs/imageCapture1_" + i + ".png");
             ImageIO.write(image, "png", file);
+            ByteArrayOutputStream outp = new ByteArrayOutputStream();
+            ImageIO.write(image, "png", outp);
+            byte [] im_bytes = outp.toByteArray();
             //SerializablePNG png = getSerializablePNG(image);
             //entity.Page page = new entity.Page(png, book, null);
             

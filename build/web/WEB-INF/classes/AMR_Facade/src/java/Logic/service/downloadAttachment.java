@@ -50,8 +50,8 @@ public class downloadAttachment extends HttpServlet {
             //
             //
             response.setContentType("application/octet-stream");
-            //response.setContentLength( (int)f.length() );
-            response.setHeader( "Content-Disposition", "attachment; filename=\"" + "original_filename" + "\"" );
+            response.setContentLength( (int)binary.length );
+            response.setHeader( "Content-Disposition", "attachment; filename=\"" + "original_filename.mp4" + "\"" );
             //
             //  Stream to the requester.
             //

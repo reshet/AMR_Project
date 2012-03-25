@@ -30,9 +30,9 @@ public class Page implements Serializable {
     @Column(name = "ID")
     private Integer id;
     
-    @Embedded
+    //@Embedded
     @Column(name = "CONTENT")
-    private SerializablePNG content;
+    private byte[] content;
     
     @JoinColumn(name = "ID_BOOK", referencedColumnName = "ID")
     @ManyToOne
@@ -45,7 +45,7 @@ public class Page implements Serializable {
     public Page() {
     }
 
-    public Page(SerializablePNG content, Book idBook, Collection<Attachment> attachmentCollection) {
+    public Page(byte[] content, Book idBook, Collection<Attachment> attachmentCollection) {
         this.content = content;
         this.idBook = idBook;
         this.attachmentCollection = attachmentCollection;
@@ -59,13 +59,13 @@ public class Page implements Serializable {
         this.id = id;
     }
 
-    public SerializablePNG getContent() {
-        return content;
-    }
-
-    public void setContent(SerializablePNG content) {
-        this.content = content;
-    }
+//    public SerializablePNG getContent() {
+//        return content;
+//    }
+//
+//    public void setContent(SerializablePNG content) {
+//        this.content = content;
+//    }
     @XmlTransient
     public Book getIdBook() {
         return idBook;
@@ -107,5 +107,19 @@ public class Page implements Serializable {
     @Override
     public String toString() {
         return "entity.Page[ id=" + id + " ]";
+    }
+
+    /**
+     * @return the content
+     */
+    public byte[] getContent() {
+        return content;
+    }
+
+    /**
+     * @param content the content to set
+     */
+    public void setContent(byte[] content) {
+        this.content = content;
     }
 }

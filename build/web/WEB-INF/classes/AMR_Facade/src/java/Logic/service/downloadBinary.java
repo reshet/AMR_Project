@@ -5,7 +5,11 @@
 package Logic.service;
 
 import entity.Book;
+import entity.Page;
 import java.io.*;
+import java.util.Collection;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.servlet.ServletContext;
@@ -21,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class downloadBinary extends HttpServlet {
 
+     public static final String FILE_SEPARATOR = System.getProperty("file.separator");
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
      * @param request servlet request
@@ -41,16 +46,27 @@ public class downloadBinary extends HttpServlet {
             //File                f        = new File("/home/reshet/Downloads/34333/HPL.pdf");
             int                 length   = 0;
             byte [] binary = null;
+            String extension = "";
             if("pdf".equals(type))
             {
                 Book b = em.find(Book.class, Integer.parseInt(id));
                 binary = b.getPdf();
+                extension="pdf";
             }
             if("cover".equals(type))
             {
                 Book b = em.find(Book.class, Integer.parseInt(id));
                 binary = b.getGlance();
+                extension = "png";
             }
+            if("zip".equals(type))
+            {
+                Book b = em.find(Book.class, Integer.parseInt(id));
+                Collection<Page> pages = b.getPageCollection();
+                binary = zipFiles(pages);
+                extension = "zip";
+            }
+            
             
             //ServletOutputStream op       = response.getOutputStream();
             ServletContext      context  = getServletConfig().getServletContext();
@@ -63,7 +79,8 @@ public class downloadBinary extends HttpServlet {
             //
             response.setContentType("application/octet-stream");
             //response.setContentLength( (int)f.length() );
-            response.setHeader( "Content-Disposition", "attachment; filename=\"" + "original_filename" + "\"" );
+             response.setContentLength( (int)binary.length );
+            response.setHeader( "Content-Disposition", "attachment; filename=\"" + "original_filename." + extension+"\"" );
             //
             //  Stream to the requester.
             //
@@ -85,6 +102,43 @@ public class downloadBinary extends HttpServlet {
         } finally {            
             //out.close();
         }
+    }
+    
+    private byte[] zipFiles(Collection<Page> pages) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ZipOutputStream zos = new ZipOutputStream(baos);
+        //byte bytes[] = new byte[2048];
+
+        int i = 0;
+        for (Page pg : pages) {
+            //FileInputStream fis = new FileInputStream(String.valueOf(i)+".png");
+//            ByteArrayOutputStream bais = new ByteArrayOutputStream();
+//            bais.write(pg.getContent());
+//            
+//            byte [] buff = new byte[4096];
+//            ByteArrayInputStream bin = new ByteArrayInputStream(buff);
+            
+            //BufferedInputStream bis = new BufferedInputStream(bais);
+
+            zos.putNextEntry(new ZipEntry(String.valueOf(i)+".png"));
+
+            //int bytesRead;
+            //while ((bytesRead = bis.read(bytes)) != -1) {
+                //zos.write(bytes, 0, bytesRead);
+            //}
+            zos.write(pg.getContent());
+            zos.closeEntry();
+            i++;
+            //bis.close();
+            //bais.close();
+            //fis.close();
+        }
+        zos.flush();
+        baos.flush();
+        zos.close();
+        baos.close();
+
+        return baos.toByteArray();
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

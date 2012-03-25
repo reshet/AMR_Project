@@ -13,6 +13,7 @@ import entity.Attachment;
 import entity.Book;
 import entity.Customer;
 import entity.Page;
+import it.sauronsoftware.jave.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.MalformedURLException;
@@ -43,6 +44,7 @@ import org.icepdf.core.exceptions.PDFException;
 import org.icepdf.core.exceptions.PDFSecurityException;
 import org.icepdf.core.pobjects.Document;
 import org.icepdf.core.util.GraphicsRenderingHints;
+import org.jpedal.PdfDecoder;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import parser.MultimediaExtractor;
@@ -225,6 +227,62 @@ public class CustomerFacadeREST extends AbstractFacade<Customer> {
     private void parseBook()
     {
         try {
+             Document document = new Document();
+        final List<SerializablePNG> pages = new ArrayList<SerializablePNG>();
+        try {
+            document.setFile("");
+       
+
+        float scale = 1f;
+        float rotation = 0f;
+
+      
+        for (int i = 0; i < document.getNumberOfPages(); i++) {
+            BufferedImage image = (BufferedImage) document.getPageImage(
+                    i, GraphicsRenderingHints.PRINT, org.icepdf.core.pobjects.Page.BOUNDARY_CROPBOX, rotation, scale);
+
+            //pages.add(getSerializablePNG(image));
+            File file = new File("/home/reshet/Downloads/imgs/imageCapture1_" + i + ".png");
+            ImageIO.write(image, "png", file);
+            ByteArrayOutputStream outp = new ByteArrayOutputStream();
+            ImageIO.write(image, "png", outp);
+            byte [] im_bytes = outp.toByteArray();
+            //SerializablePNG png = getSerializablePNG(image);
+            //entity.Page page = new entity.Page(png, book, null);
+            
+            
+            //TO-DO HERE FAKE! Closed EMF!!! 
+            //em.persist(page);
+            image.flush();
+        }
+        //  return Collections.unmodifiableList(pages);
+         } catch (PDFException ex) {
+            System.out.println("Error parsing PDF document " + ex);
+        } catch (PDFSecurityException ex) {
+            System.out.println("Error encryption not supported " + ex);
+        } catch (FileNotFoundException ex) {
+            System.out.println("Error file not found " + ex);
+        } catch (IOException ex) {
+            System.out.println("Error IOException " + ex);
+        }
+        finally
+        {
+           document.dispose();
+        }
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
             Book book = new Book("Opacha",null,null);
             //book.setId(3);
             //em.persist(book);
@@ -233,11 +291,11 @@ public class CustomerFacadeREST extends AbstractFacade<Customer> {
 
 
             SplitIntoImages splitter = new SplitIntoImages();
-            List<SerializablePNG> pages = splitter.split(em,book,"/home/reshet/Downloads/34333/server.pdf");
+           // List<SerializablePNG> pages = splitter.split(em,book,"/home/reshet/Downloads/34333/server.pdf");
             for(int i = 0; i < pages.size(); i++){
-                Page page = new Page(pages.get(i),book,null);
-                page.setId(i+1);
-                em.persist(page);
+                //Page page = new Page(pages.get(i),book,null);
+               // page.setId(i+1);
+                //em.persist(page);
             }
             em.persist(book);
             //dao.close();    
@@ -267,7 +325,7 @@ public class CustomerFacadeREST extends AbstractFacade<Customer> {
         if(books == null || books.isEmpty())
         {
             books = new ArrayList<Book>();
-            books.add(doParsePDF(c,"/home/reshet/Downloads/34333/db2_2_2010.pdf"));
+            //books.add(doParsePDF(c,"/home/reshet/Downloads/34333/db2_2_2010.pdf"));
             books.add(doParsePDF(c,"/home/reshet/Downloads/34333/HPL.pdf"));
             books.add(doParsePDF(c,"/home/reshet/Downloads/34333/server.pdf"));
             c.setBookCollection(books);
@@ -287,7 +345,7 @@ public class CustomerFacadeREST extends AbstractFacade<Customer> {
         }
         return null;
     }
-    private byte[] getPdfBytes(String path)
+    private byte[] getFileBytes(String path)
     {
             File f = new File(path);
             FileInputStream fin = null;
@@ -318,14 +376,94 @@ public class CustomerFacadeREST extends AbstractFacade<Customer> {
             }
             return null;
     }
+
+    
+    private void doConvert(String path,Page p,List<Attachment> attachments)
+     {
+        System.gc();
+        File source = new File(path);  
+        String str=source.toString();
+        int mid= str.lastIndexOf(".");
+        String fname=str.substring(0,mid)+".mp4";
+        String ext=str.substring(mid+1,str.length());
+        File target = new File(String.format(fname));                       
+        if (ext.equals("flv")){
+            try {
+                System.out.println(ext);
+                AudioAttributes audio = new AudioAttributes(); 
+               audio.setCodec("libmp3lame");
+                audio.setBitRate(new Integer(56000));
+                audio.setChannels(new Integer(1));
+                audio.setSamplingRate(new Integer(22050));
+                VideoAttributes video = new VideoAttributes();
+             
+                //video.setCodec(VideoAttributes.DIRECT_STREAM_COPY);
+                video.setCodec("mpeg4");
+                EncodingAttributes attrs = new EncodingAttributes();
+                attrs.setFormat("mpegvideo");
+                attrs.setAudioAttributes(audio);
+                attrs.setVideoAttributes(video);
+                Encoder encoder = new Encoder();
+                encoder.encode(source, target, attrs);
+                
+                
+                   
+                    FileInputStream fin = null;
+                    FileChannel ch = null;
+                    try {
+                        fin = new FileInputStream(target);
+                        ch = fin.getChannel();
+                        int size = (int) ch.size();
+                        MappedByteBuffer buf = ch.map(MapMode.READ_ONLY, 0, size);
+                        byte[] bytes = new byte[size];
+                        buf.get(bytes);
+                        
+                        
+                        Attachment at = new Attachment(path,bytes, p);
+                        attachments.add(at);
+                        
+                        
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    } finally {
+                        try {
+                            if (fin != null) {
+                                fin.close();
+                            }
+                            if (ch != null) {
+                                ch.close();
+                            }
+                        } catch (IOException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+            }
+            } catch (IllegalArgumentException ex) {
+                Logger.getLogger(MultimediaExtractor.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (InputFormatException ex) {
+                Logger.getLogger(MultimediaExtractor.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (EncoderException ex) {
+                Logger.getLogger(MultimediaExtractor.class.getName()).log(Level.SEVERE, null, ex);
+            }
+     }
+     }
+    
+    
+   
+    
     private Book doParsePDF(Customer c,String path)
     {
+       System.gc();
+       String PATH = "/home/reshet/Downloads/34333/%s";
        ArrayList<Page> pages = new ArrayList<Page>();
        Book book = new Book(path,c,pages);
        book.setGlance(getCover());
-       book.setPdf(getPdfBytes(path));
+       byte [] pdf = getFileBytes(path);
+       book.setPdf(pdf);
        
-               try {
+       try{
+     
            // PATH = src;
           PdfReader reader = new PdfReader(path);
 
@@ -338,10 +476,32 @@ public class CustomerFacadeREST extends AbstractFacade<Customer> {
            PdfArray mine;
            //PdfArray refs2;
            byte[] b;
+           
+           //Document document = new Document();
+            final PdfDecoder pdfDocument = new PdfDecoder(false); 
+            pdfDocument.setExtractionMode(PdfDecoder.FINALIMAGES, 100, 1); 
+            pdfDocument.openPdfFile(path); 
+           
+           
+           //document.setByteArray(pdf, 0, pdf.length, null);
+            //document.setFile(path);
+       
+
+             float scale = 1f;
+             float rotation = 0f;
            for (int i = 1; i <= reader.getNumberOfPages(); i++)
            {
+               System.gc();
+                 //      GraphicsRenderingHints.
+//                BufferedImage image = (BufferedImage) document.getPageImage(
+//                    i-1, GraphicsRenderingHints.PRINT, org.icepdf.core.pobjects.Page.BOUNDARY_CROPBOX, rotation, scale);
+                BufferedImage image = pdfDocument.getPageAsImage(i); 
+                ByteArrayOutputStream outp = new ByteArrayOutputStream();
+                ImageIO.write(image, "png", outp);
+                byte [] im_bytes = outp.toByteArray();
+                image.flush();
                ArrayList<Attachment> attachments = new ArrayList<Attachment>();
-               Page p = new Page(null, book, attachments);
+               Page p = new Page(im_bytes, book, attachments);
                em.persist(p);
                pages.add(p);
                array = reader.getPageN(i).getAsArray(PdfName.ANNOTS);
@@ -351,27 +511,30 @@ public class CustomerFacadeREST extends AbstractFacade<Customer> {
 
                for (int j = 0; j < array.size(); j++) {
                    annot = array.getAsDict(j);
-                   if (PdfName.FILEATTACHMENT.equals(annot.getAsName(PdfName.SUBTYPE))) {
-
-                       fs = annot.getAsDict(PdfName.FS);
-                       refs = fs.getAsDict(PdfName.EF);
-
-                       for (PdfName name : refs.getKeys()) {
-                           try 
-                           {
-                               
-                               byte [] bytearray = PdfReader.getStreamBytes((PRStream) refs.getAsStream(name));
-                               Attachment at = new Attachment(fs.getAsString(name).toString(),bytearray, p);
-                               attachments.add(at);
-                               //FileOutputStream fos = new FileOutputStream(String.format(PATH, fs.getAsString(name).toString()));
-                               //fos.write(PdfReader.getStreamBytes((PRStream) refs.getAsStream(name)));
-                               ///fos.flush();
-                              // fos.close();
-                               
-                           }finally
-                           {}
-                       }
-                   }
+//                   if (PdfName.FILEATTACHMENT.equals(annot.getAsName(PdfName.SUBTYPE))) {
+//
+//                       fs = annot.getAsDict(PdfName.FS);
+//                       refs = fs.getAsDict(PdfName.EF);
+//
+//                       for (PdfName name : refs.getKeys()) {
+//                           try 
+//                           {
+//                               
+////                               byte [] bytearray = PdfReader.getStreamBytes((PRStream) refs.getAsStream(name));
+////                               Attachment at = new Attachment(fs.getAsString(name).toString(),bytearray, p);
+////                               attachments.add(at);
+//                               
+//                               
+//                               //FileOutputStream fos = new FileOutputStream(String.format(PATH, fs.getAsString(name).toString()));
+//                               //fos.write(PdfReader.getStreamBytes((PRStream) refs.getAsStream(name)));
+//                               ///fos.flush();
+//                              // fos.close();
+//                               //doConvert(String.format(path, refs.getAsString(name).toString()),p,attachments);
+//                               
+//                           }finally
+//                           {}
+//                       }
+//                   }
 
                    if (PdfName.RICHMEDIA.equals(annot.getAsName(PdfName.SUBTYPE))) {
                        fs = annot.getAsDict(PdfName.RICHMEDIACONTENT);
@@ -387,21 +550,23 @@ public class CustomerFacadeREST extends AbstractFacade<Customer> {
                                    PdfDictionary prs = (PdfDictionary) mine.getDirectObject(key);
                                    PdfDictionary prs2 = prs.getAsDict(PdfName.EF);
                                    for (PdfName name3 : prs2.getKeys()) {
+                                       FileOutputStream fos = new FileOutputStream(String.format(PATH,prs.getAsString(name3).toString()));
                                        try {
-                             
-                                          //FileOutputStream fos = new FileOutputStream(String.format(PATH, prs.getAsString(name3).toString()));
-       
                                           PRStream prstream=(PRStream) prs2.getAsStream(name3);
                                           byte [] bytearray=PdfReader.getStreamBytes(prstream);
+                                          System.gc();
+                                          
                                           
                                            //byte [] bytearray = PdfReader.getStreamBytes((PRStream) refs.getAsStream(name));
-                                            Attachment at = new Attachment(prs.getAsString(name3).toString(),bytearray, p);
-                                            attachments.add(at);
-                                          //fos.write(bytearray);
-                                          // fos.flush();
-                                          // fos.close();
+                                           fos.write(bytearray);
+                                           fos.flush();
+                                           
+                                            doConvert(String.format(PATH,prs.getAsString(name3).toString()),p,attachments);
                                        }
-                                       finally{}
+                                       finally{
+                                           
+                                            fos.close();
+                                       }
                                    }
                                }
                                key++;
@@ -414,9 +579,22 @@ public class CustomerFacadeREST extends AbstractFacade<Customer> {
                pages.remove(i-1);
                pages.add(p);
            }
-        } catch (IOException ex) {
+           
+          
+          pdfDocument.dispose(); 
+    
+        } catch (org.jpedal.exception.PdfException ex) {
+            Logger.getLogger(CustomerFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
+        } 
+//catch (PDFException ex) {
+//            Logger.getLogger(CustomerFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
+//        } catch (PDFSecurityException ex) {
+//            Logger.getLogger(CustomerFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
+//        } 
+        catch (IOException ex) {
             Logger.getLogger(MultimediaExtractor.class.getName()).log(Level.SEVERE, null, ex);
         }
+              
        book.setPageCollection(pages);
        em.persist(book);
        return book;
